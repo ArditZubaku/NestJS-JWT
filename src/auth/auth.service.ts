@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthDto } from './dto';
 import * as bcrypt from 'bcrypt';
@@ -14,6 +14,57 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
+  async localSignup(dto: AuthDto): Promise<Tokens> {
+    const { email, password } = dto;
+    const hash = await this.hashData(password);
+
+    const user = await this.prismaService.user.create({
+      data: {
+        email,
+        hash,
+      },
+    });
+    const tokens = await this.getTokens(user.id, user.email);
+    await this.updateRtHash(user.id, tokens.refresh_token);
+    return tokens;
+  }
+
+  //TODO: CHECK RETURN TYPE
+  async localSignin(dto: AuthDto): Promise<Tokens> {
+    const { email, password } = dto;
+
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        email,
+      },
+    });
+    if (!user) throw new ForbiddenException('No user with this email exists!');
+
+    const passwordMatches: boolean = await bcrypt.compare(password, user.hash);
+    if (!passwordMatches) throw new ForbiddenException('Wrong password!');
+
+    const tokens = await this.getTokens(user.id, user.email);
+    await this.updateRtHash(user.id, tokens.refresh_token);
+    return tokens;
+  }
+
+  logout() {}
+
+  refreshTokens() {}
+
+  async updateRtHash(userID: number, rt: string): Promise<void> {
+    const hash: string = await this.hashData(rt);
+    await this.prismaService.user.update({
+      where: {
+        id: userID,
+      },
+      data: {
+        hashedRefreshToken: hash,
+      },
+    });
+  }
+
+  //Util functions
   hashData(data: string) {
     return bcrypt.hash(data, 10);
   }
@@ -48,25 +99,4 @@ export class AuthService {
       refresh_token: rt,
     };
   }
-
-  async localSignup(dto: AuthDto): Promise<Tokens> {
-    const { email, password } = dto;
-
-    const hash = await this.hashData(password);
-
-    const user = await this.prismaService.user.create({
-      data: {
-        email,
-        hash,
-      },
-    });
-
-    return undefined;
-  }
-
-  localSignin() {}
-
-  logout() {}
-
-  refreshTokens() {}
 }

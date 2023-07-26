@@ -1,0 +1,16 @@
+POST {{host}}/auth/local/signup
+Content-Type: application/json
+
+{
+  "email": "test1@gmail.com",
+  "password": "12345"
+}
+
+###
+POST {{host}}/auth/local/signin
+Content-Type: application/json
+
+{
+  "email": "test@gmail.com",
+  "password": "12345"
+}

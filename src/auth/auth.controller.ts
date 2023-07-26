@@ -13,8 +13,11 @@ export class AuthController {
   }
 
   @Post('/local/signin')
-  localSignin() {
-    return this.authService.localSignin();
+  localSignin(@Body() dto: AuthDto) {
+    console.log({
+      ...dto,
+    });
+    return this.authService.localSignin(dto);
   }
 
   @Post('/logout')
