@@ -29,7 +29,6 @@ export class AuthService {
     return tokens;
   }
 
-  //TODO: CHECK RETURN TYPE
   async localSignin(dto: AuthDto): Promise<Tokens> {
     const { email, password } = dto;
 
@@ -48,7 +47,19 @@ export class AuthService {
     return tokens;
   }
 
-  logout() {}
+  async logout(userID: number) {
+    await this.prismaService.user.updateMany({
+      where: {
+        id: userID,
+        hashedRefreshToken: {
+          not: null,
+        },
+      },
+      data: {
+        hashedRefreshToken: null,
+      },
+    });
+  }
 
   refreshTokens() {}
 
