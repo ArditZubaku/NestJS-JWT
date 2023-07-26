@@ -18,3 +18,6 @@ Content-Type: application/json
 ###
 POST {{host}}/auth/logout
 Authorization: Bearer ...
+###
+POST {{host}}/auth/refresh
+Authorization: Bearer ...

@@ -3,7 +3,6 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  Param,
   Post,
   Req,
   UseGuards,
@@ -20,7 +19,9 @@ export class AuthController {
 
   @Post('/local/signup')
   @HttpCode(HttpStatus.CREATED)
-  localSignup(@Body() dto: AuthDto): Promise<Tokens> {
+  localSignup(
+    @Body() dto: AuthDto,
+  ): Promise<Tokens> {
     return this.authService.localSignup(dto);
   }
 
@@ -38,7 +39,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   logout(@Req() req: Request) {
     const user = req.user;
-    return this.authService.logout(user['id']);
+    return this.authService.logout(user['sub']);
   }
 
   @UseGuards(AuthGuard('jwt-refresh'))
@@ -46,6 +47,9 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   refreshTokens(@Req() req: Request) {
     const user = req.user;
-    return this.authService.refreshTokens(user['id'], user['refreshToken']);
+    return this.authService.refreshTokens(
+      user['sub'],
+      user['refreshToken'],
+    );
   }
 }
