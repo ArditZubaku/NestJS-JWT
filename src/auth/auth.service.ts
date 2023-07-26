@@ -61,7 +61,7 @@ export class AuthService {
     });
   }
 
-  refreshTokens() {}
+  refreshTokens(userID: number, rt: string) {}
 
   async updateRtHash(userID: number, rt: string): Promise<void> {
     const hash: string = await this.hashData(rt);
