@@ -9,19 +9,18 @@ import {
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
 import { Tokens } from './types';
-import {
-  AtGuard,
-  RtGuard,
-} from '../common/guards';
+import { RtGuard } from '../common/guards';
 import {
   GetCurrentUser,
   GetCurrentUserID,
+  Public,
 } from '../common/decorators';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Public()
   @Post('/local/signup')
   @HttpCode(HttpStatus.CREATED)
   localSignup(
@@ -30,6 +29,7 @@ export class AuthController {
     return this.authService.localSignup(dto);
   }
 
+  @Public()
   @Post('/local/signin')
   @HttpCode(HttpStatus.OK)
   localSignin(
@@ -41,7 +41,7 @@ export class AuthController {
     return this.authService.localSignin(dto);
   }
 
-  @UseGuards(AtGuard)
+  // @UseGuards(AtGuard)
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
   logout(@GetCurrentUserID() userID: number) {

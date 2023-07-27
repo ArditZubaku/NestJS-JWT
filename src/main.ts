@@ -9,6 +9,10 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
+  // First way:
+  // const reflector: Reflector = new Reflector();
+  // app.useGlobalGuards(new AtGuard(reflector));
+
   await app.listen(3333);
 }
 bootstrap();
