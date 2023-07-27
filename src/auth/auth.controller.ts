@@ -4,7 +4,6 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -14,7 +13,10 @@ import {
   AtGuard,
   RtGuard,
 } from '../common/guards';
-import { GetCurrentUser } from '../common/decorators';
+import {
+  GetCurrentUser,
+  GetCurrentUserID,
+} from '../common/decorators';
 
 @Controller('auth')
 export class AuthController {
@@ -30,7 +32,9 @@ export class AuthController {
 
   @Post('/local/signin')
   @HttpCode(HttpStatus.OK)
-  localSignin(@Body() dto: AuthDto) {
+  localSignin(
+    @Body() dto: AuthDto,
+  ): Promise<Tokens> {
     console.log({
       ...dto,
     });
@@ -40,18 +44,21 @@ export class AuthController {
   @UseGuards(AtGuard)
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
-  logout(@GetCurrentUser('sub') userID: number) {
+  logout(@GetCurrentUserID() userID: number) {
     return this.authService.logout(userID);
   }
 
   @UseGuards(RtGuard)
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
-  refreshTokens(@Req() req: Request) {
-    const user = req.user;
+  refreshTokens(
+    @GetCurrentUserID() userID: number,
+    @GetCurrentUser('refreshToken')
+    refreshToken: string,
+  ) {
     return this.authService.refreshTokens(
-      user['sub'],
-      user['refreshToken'],
+      userID,
+      refreshToken,
     );
   }
 }
