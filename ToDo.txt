@@ -1,0 +1,16 @@
+1. You can store tokens in local storage on the client, however they are open to an XSS attack and with 7 days (for the refresh token), a lot of damage can be done.
+I'd suggest storing the refresh token in a http only cookie.
+This avoids XSS attacks, as attackers won't be able to get access to the cookie.
+You should also add the "/refresh" path to the cookie too, so the cookie is only sent on requests made to the "/refresh" endpoint.
+
+2. One thing to mention, do not use "bcrypt" for hashing JWTs since they are longer and more often if 2 parts of them are the same,
+it could lead to a partial comparison, bcrypt algorithm is made for passwords in the first place,
+and for JWTs you can use a much simpler algorithm like SHA-256 or SHA-512.
+
+3. From the security standpoint, the good practice is to have JWT in memory or basically sending through http context and save refresh token in a http only cookie so when a user leaves their browser and comes back again,
+the application can use the refresh token to issue a new access token. But, by using your approach, when a user refreshes their browser or closes it they lose both access and refresh tokens,
+and they have to sign in again in order to access the protected area of the application. In SPA applications you use a refresh token in order to issue an access token again after its expiration, so we need to keep it somewhere safe to use it again,
+otherwise it is pointless to use it. On top of that, when you only use one refresh token in your user's entity and every time you replace it with a new one, then users will not be able to have their multiple devices logged in, because whenever they log in each device,
+then the previous refresh token they used in another device will be replaced with a new one and their another device will be no longer logged in. So we need a user entity that has one-to-many relationship with a refresh token entity.
+You can also read more about the security recommendations for access and refresh tokens from the link below if you are interested:
+   [https://dev.to/cotter/localstorage-vs-cookies-all-you-need-to-know-about-storing-jwt-tokens-securely-in-the-front-end-15id]
