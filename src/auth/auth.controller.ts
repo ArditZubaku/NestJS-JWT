@@ -48,6 +48,7 @@ export class AuthController {
     return this.authService.logout(userID);
   }
 
+  @Public() // Bypass the AtGuard then execute the RtGuard
   @UseGuards(RtGuard)
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
